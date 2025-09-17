@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>멀티플레이어 메모리카드 게임</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 게임 모드 선택 모달 -->
+    <div id="gameModeModal" class="modal">
+        <div class="modal-content">
+            <h2>메모리카드 게임</h2>
+            <p>게임 모드를 선택하세요</p>
+            <div class="game-mode-buttons">
+                <button id="singlePlayerBtn" class="mode-btn">
+                    <div class="mode-icon">🧠</div>
+                    <div class="mode-title">혼자 플레이</div>
+                    <div class="mode-desc">나 혼자서 기록 도전!</div>
+                </button>
+                <button id="multiPlayerBtn" class="mode-btn">
+                    <div class="mode-icon">👥</div>
+                    <div class="mode-title">멀티플레이어</div>
+                    <div class="mode-desc">친구들과 함께!</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 싱글플레이어 설정 모달 -->
+    <div id="singlePlayerModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>혼자 플레이 설정</h2>
+            <div class="single-player-setup">
+                <div class="setup-section">
+                    <label for="playerNameInput">닉네임:</label>
+                    <input type="text" id="playerNameInput" placeholder="닉네임을 입력하세요" maxlength="20">
+                </div>
+                <div class="setup-section">
+                    <label for="difficultySelect">난이도:</label>
+                    <select id="difficultySelect">
+                        <option value="easy">쉬움 (3×4 = 12장)</option>
+                        <option value="medium" selected>보통 (4×4 = 16장)</option>
+                        <option value="hard">어려움 (4×5 = 20장)</option>
+                        <option value="expert">전문가 (5×6 = 30장)</option>
+                    </select>
+                </div>
+                <div class="setup-buttons">
+                    <button id="startSingleGameBtn">게임 시작</button>
+                    <button id="backToModeBtn">뒤로 가기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 멀티플레이어 입장 모달 -->
+    <div id="userIdModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>멀티플레이어 게임 참여</h2>
+            <input type="text" id="userIdInput" placeholder="닉네임을 입력하세요" maxlength="20">
+            <div class="multi-player-buttons">
+                <button id="joinGameBtn">게임 참여</button>
+                <button id="backFromMultiBtn">뒤로 가기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 게임 화면 -->
+    <div id="gameContainer" class="hidden">
+        <!-- 헤더 -->
+        <header class="game-header">
+            <h1>메모리카드 게임</h1>
+            <div class="user-info">
+                <span id="currentPlayer">플레이어: </span>
+                <span id="roomCode">방 코드: </span>
+            </div>
+        </header>
+
+        <!-- 게임 상태 패널 -->
+        <div class="game-status">
+            <div class="status-item" id="currentTurnStatus">
+                <span>현재 턴:</span>
+                <span id="currentTurn">-</span>
+            </div>
+            <div class="status-item">
+                <span id="scoreLabel">내 점수:</span>
+                <span id="myScore">0</span>
+            </div>
+            <div class="status-item">
+                <span>시간:</span>
+                <span id="gameTimer">00:00</span>
+            </div>
+            <div class="status-item single-player-only hidden">
+                <span>이동 횟수:</span>
+                <span id="moveCount">0</span>
+            </div>
+            <div class="status-item single-player-only hidden">
+                <span>매치:</span>
+                <span id="matchCount">0 / 8</span>
+            </div>
+        </div>
+
+        <!-- 온라인 플레이어 목록 -->
+        <div class="players-panel multi-player-only">
+            <h3>플레이어 목록</h3>
+            <div id="playersList"></div>
+        </div>
+
+        <!-- 게임 보드 -->
+        <div class="game-board">
+            <div id="memoryCards" class="cards-grid"></div>
+        </div>
+
+        <!-- 게임 컨트롤 -->
+        <div class="game-controls">
+            <button id="newGameBtn">새 게임</button>
+            <button id="leaderboardBtn">순위표</button>
+            <button id="pauseBtn" class="single-player-only hidden">일시정지</button>
+            <button id="leaveGameBtn">게임 나가기</button>
+        </div>
+    </div>
+
+    <!-- 리더보드 모달 -->
+    <div id="leaderboardModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>순위표</h2>
+                <span id="closeLeaderboard" class="close">&times;</span>
+            </div>
+            <div id="leaderboardContent">
+                <div class="leaderboard-tabs">
+                    <button class="tab-btn active" data-tab="today">오늘</button>
+                    <button class="tab-btn" data-tab="week">이번주</button>
+                    <button class="tab-btn" data-tab="all">전체</button>
+                </div>
+                <div id="leaderboardList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 게임 결과 모달 -->
+    <div id="gameResultModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>게임 결과</h2>
+            <div id="gameResult"></div>
+            <div class="result-actions">
+                <button id="playAgainBtn">다시 플레이</button>
+                <button id="viewLeaderboardBtn">순위표 보기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 연결 상태 표시 -->
+    <div id="connectionStatus" class="connection-status">
+        <span id="statusText">연결 중...</span>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="singleplayer.js"></script>
+    <script src="client.js"></script>
+</body>
+</html>
